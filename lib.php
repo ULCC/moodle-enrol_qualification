@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -45,11 +44,17 @@ class enrol_qualification_plugin extends enrol_plugin {
         if (empty($instance)) {
             $enrol = $this->get_name();
             return get_string('pluginname', 'enrol_'.$enrol);
-        } else if (empty($instance->name)) {
-            $enrol = $this->get_name();
-            return get_string('pluginname', 'enrol_'.$enrol) . ' (' . format_string($DB->get_field('course', 'fullname', array('id'=>$instance->customint1))) . ')';
         } else {
-            return format_string($instance->name);
+            if (empty($instance->name)) {
+                $enrol = $this->get_name();
+                $coursefullname = $DB->get_field('course',
+                                                 'fullname',
+                                                 array('id' => $instance->customint1));
+                return get_string('pluginname', 'enrol_'.$enrol).' ('.
+                       format_string($coursefullname).')';
+            } else {
+                return format_string($instance->name);
+            }
         }
     }
 
@@ -60,11 +65,13 @@ class enrol_qualification_plugin extends enrol_plugin {
      */
     public function get_newinstance_link($courseid) {
         $context = get_context_instance(CONTEXT_COURSE, $courseid, MUST_EXIST);
-        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/qualification:config', $context)) {
-            return NULL;
+        if (!has_capability('moodle/course:enrolconfig', $context) or
+            !has_capability('enrol/qualification:config', $context)) {
+
+            return null;
         }
         // multiple instances supported - multiple parent courses linked
-        return new moodle_url('/enrol/qualification/addinstance.php', array('id'=>$courseid));
+        return new moodle_url('/enrol/qualification/addinstance.php', array('id' => $courseid));
     }
 
 
@@ -83,9 +90,8 @@ class enrol_qualification_plugin extends enrol_plugin {
             // sync cohort enrols
             require_once("$CFG->dirroot/enrol/qualification/locallib.php");
             enrol_qualification_sync($course->id);
-        } else {
-            // cohorts are never inserted automatically
         }
+        // cohorts are never inserted automatically
 
     }
 
@@ -98,7 +104,7 @@ class enrol_qualification_plugin extends enrol_plugin {
 
         // purge all roles if qualification sync disabled, those can be recreated later here in cron
         if (!enrol_is_enabled('qualification')) {
-            role_unassign_all(array('component'=>'qualification_enrol'));
+            role_unassign_all(array('component' => 'qualification_enrol'));
             return;
         }
 

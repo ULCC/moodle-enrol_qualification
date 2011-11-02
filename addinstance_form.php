@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,36 +30,43 @@ require_once("$CFG->libdir/formslib.php");
 class enrol_qualification_addinstance_form extends moodleform {
     protected $course;
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB;
 
-        $mform  = $this->_form;
+        $mform = $this->_form;
         $course = $this->_customdata;
         $this->course = $course;
 
-        $existing = $DB->get_records('enrol', array('enrol'=>'qualification', 'courseid'=>$course->id), '', 'customint1, id');
+        $existing = $DB->get_records('enrol', array('enrol' => 'qualification',
+                                                   'courseid' => $course->id),
+                                     '', 'customint1, id');
 
         // TODO: this has to be done via ajax or else it will fail very badly on large sites!
         $courses = array('' => get_string('choosedots'));
-        $rs = $DB->get_recordset('course', array(), 'sortorder ASC', 'id, fullname, shortname, visible');
+        $rs = $DB->get_recordset('course', array(), 'sortorder ASC',
+                                 'id, fullname, shortname, visible');
         foreach ($rs as $c) {
             if ($c->id == SITEID or $c->id == $course->id or isset($existing[$c->id])) {
                 continue;
             }
             $coursecontext = get_context_instance(CONTEXT_COURSE, $c->id);
-            if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
+            $canviewhidden = has_capability('moodle/course:viewhiddencourses', $coursecontext);
+            if (!$c->visible and !$canviewhidden) {
                 continue;
             }
             if (!has_capability('enrol/qualification:selectaslinked', $coursecontext)) {
                 continue;
             }
-            $courses[$c->id] = format_string($c->fullname). ' ['.format_string($c->shortname, true, array('context' => $coursecontext)).']';
+            $courses[$c->id] = format_string($c->fullname).' ['.
+                               format_string($c->shortname, true,
+                                             array('context' => $coursecontext)).']';
         }
         $rs->close();
 
-        $mform->addElement('header','general', get_string('pluginname', 'enrol_qualification'));
+        $mform->addElement('header', 'general', get_string('pluginname', 'enrol_qualification'));
 
-        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_qualification'), $courses);
+        $mform->addElement('select', 'link',
+                           get_string('linkedcourse', 'enrol_qualification'), $courses);
         $mform->addRule('link', get_string('required'), 'required', null, 'client');
 
         $mform->addElement('hidden', 'id', null);
@@ -68,30 +74,41 @@ class enrol_qualification_addinstance_form extends moodleform {
 
         $this->add_action_buttons(true, get_string('addinstance', 'enrol'));
 
-        $this->set_data(array('id'=>$course->id));
+        $this->set_data(array('id' => $course->id));
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         global $DB, $CFG;
 
-        // TODO: this is duplicated here because it may be necessary one we implement ajax course selection element
+        // TODO: this is duplicated here because it may be necessary one we implement ajax course
+        // selection element
 
         $errors = parent::validation($data, $files);
-        if (!$c = $DB->get_record('course', array('id'=>$data['link']))) {
+        if (!$c = $DB->get_record('course', array('id' => $data['link']))) {
             $errors['link'] = get_string('required');
         } else {
             $coursecontext = get_context_instance(CONTEXT_COURSE, $c->id);
-            $existing = $DB->get_records('enrol', array('enrol'=>'qualification', 'courseid'=>$this->course->id), '', 'customint1, id');
-            if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
+            $existing = $DB->get_records('enrol', array('enrol' => 'qualification',
+                                                       'courseid' => $this->course->id),
+                                         '', 'customint1, id');
+            $canviewhidden = has_capability('moodle/course:viewhiddencourses', $coursecontext);
+            if (!$c->visible and !$canviewhidden) {
                 $errors['link'] = get_string('error');
-            } else if (!has_capability('enrol/qualification:selectaslinked', $coursecontext)) {
-                $errors['link'] = get_string('error');
-            } else if ($c->id == SITEID or $c->id == $this->course->id or isset($existing[$c->id])) {
-                $errors['link'] = get_string('error');
+            } else {
+                if (!has_capability('enrol/qualification:selectaslinked', $coursecontext)) {
+                    $errors['link'] = get_string('error');
+                } else {
+                    if ($c->id == SITEID or
+                        $c->id == $this->course->id or
+                        isset($existing[$c->id])
+                    ) {
+
+                        $errors['link'] = get_string('error');
+                    }
+                }
             }
         }
 
         return $errors;
     }
 }
-

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -27,39 +26,39 @@
 defined('MOODLE_INTERNAL') || die();
 
 /* List of handlers */
-$handlers = array (
-    'role_assigned' => array (
-        'handlerfile'      => '/enrol/qualification/locallib.php',
-        'handlerfunction'  => array('enrol_qualification_handler', 'role_assigned'),
-        'schedule'         => 'instant',
-        'internal'         => 1,
+$handlers = array(
+    'role_assigned' => array(
+        'handlerfile' => '/enrol/qualification/locallib.php',
+        'handlerfunction' => array('enrol_qualification_handler', 'role_assigned'),
+        'schedule' => 'instant',
+        'internal' => 1,
     ),
 
-    'role_unassigned' => array (
-        'handlerfile'      => '/enrol/qualification/locallib.php',
-        'handlerfunction'  => array('enrol_qualification_handler', 'role_unassigned'),
-        'schedule'         => 'instant',
-        'internal'         => 1,
+    'role_unassigned' => array(
+        'handlerfile' => '/enrol/qualification/locallib.php',
+        'handlerfunction' => array('enrol_qualification_handler', 'role_unassigned'),
+        'schedule' => 'instant',
+        'internal' => 1,
     ),
 
-    'user_enrolled' => array (
-        'handlerfile'      => '/enrol/qualification/locallib.php',
-        'handlerfunction'  => array('enrol_qualification_handler', 'user_enrolled'),
-        'schedule'         => 'instant',
-        'internal'         => 1,
+    'user_enrolled' => array(
+        'handlerfile' => '/enrol/qualification/locallib.php',
+        'handlerfunction' => array('enrol_qualification_handler', 'user_enrolled'),
+        'schedule' => 'instant',
+        'internal' => 1,
     ),
 
-    'user_unenrolled' => array (
-        'handlerfile'      => '/enrol/qualification/locallib.php',
-        'handlerfunction'  => array('enrol_qualification_handler', 'user_unenrolled'),
-        'schedule'         => 'instant',
-        'internal'         => 1,
+    'user_unenrolled' => array(
+        'handlerfile' => '/enrol/qualification/locallib.php',
+        'handlerfunction' => array('enrol_qualification_handler', 'user_unenrolled'),
+        'schedule' => 'instant',
+        'internal' => 1,
     ),
 
-    'course_deleted' => array (
-        'handlerfile'      => '/enrol/qualification/locallib.php',
-        'handlerfunction'  => array('enrol_qualification_handler', 'course_deleted'),
-        'schedule'         => 'instant',
-        'internal'         => 1,
+    'course_deleted' => array(
+        'handlerfile' => '/enrol/qualification/locallib.php',
+        'handlerfunction' => array('enrol_qualification_handler', 'course_deleted'),
+        'schedule' => 'instant',
+        'internal' => 1,
     ),
 );

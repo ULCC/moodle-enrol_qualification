@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,15 +27,22 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
 
-    //--- general settings -----------------------------------------------------------------------------------
-    $settings->add(new admin_setting_heading('enrol_qualification_settings', '', get_string('pluginname_desc', 'enrol_qualification')));
+    //--- general settings ------------------------------------------------------------------------
+    $settings->add(new admin_setting_heading('enrol_qualification_settings', '',
+                                             get_string('pluginname_desc', 'enrol_qualification')));
 
     if (!during_initial_install()) {
         $allroles = array();
         foreach (get_all_roles() as $role) {
-                $rolename = strip_tags(format_string($role->name)) . ' ('. $role->shortname . ')';
-                $allroles[$role->id] = $rolename;
+            $rolename = strip_tags(format_string($role->name)).' ('.$role->shortname.')';
+            $allroles[$role->id] = $rolename;
         }
-        $settings->add(new admin_setting_configmultiselect('enrol_qualification/nosyncroleids', get_string('nosyncroleids', 'enrol_qualification'), get_string('nosyncroleids_desc', 'enrol_qualification'), array(), $allroles));
+        $nosyncroleids = get_string('nosyncroleids', 'enrol_qualification');
+        $nosyncroleids_desc = get_string('nosyncroleids_desc', 'enrol_qualification');
+        $settings->add(new admin_setting_configmultiselect('enrol_qualification/nosyncroleids',
+                                                            $nosyncroleids,
+                                                            $nosyncroleids_desc,
+                                                            array(),
+                                                            $allroles));
     }
 }

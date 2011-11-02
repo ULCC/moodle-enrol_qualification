@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,7 +33,7 @@ function xmldb_enrol_qualification_install() {
         unset_config('nonmetacoursesyncroleids');
     }
 
-    if (!$DB->record_exists('enrol', array('enrol'=>'qualification'))) {
+    if (!$DB->record_exists('enrol', array('enrol' => 'qualification'))) {
         // no need to syn roles and enrolments
         return;
     }

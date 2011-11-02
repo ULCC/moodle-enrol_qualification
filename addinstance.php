@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,31 +29,34 @@ require_once("$CFG->dirroot/enrol/qualification/locallib.php");
 
 $id = required_param('id', PARAM_INT); // course id
 
-$course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 $context = get_context_instance(CONTEXT_COURSE, $course->id, MUST_EXIST);
 
-$PAGE->set_url('/enrol/qualification/addinstance.php', array('id'=>$course->id));
+$PAGE->set_url('/enrol/qualification/addinstance.php', array('id' => $course->id));
 $PAGE->set_pagelayout('admin');
 
-navigation_node::override_active_url(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+navigation_node::override_active_url(new moodle_url('/enrol/instances.php',
+                                         array('id' => $course->id)));
 
 require_login($course);
 require_capability('moodle/course:enrolconfig', $context);
 
 $enrol = enrol_get_plugin('qualification');
 if (!$enrol->get_newinstance_link($course->id)) {
-    redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+    redirect(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
 }
 
-$mform = new enrol_qualification_addinstance_form(NULL, $course);
+$mform = new enrol_qualification_addinstance_form(null, $course);
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+    redirect(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
 
-} else if ($data = $mform->get_data()) {
-    $eid = $enrol->add_instance($course, array('customint1'=>$data->link));
-    enrol_qualification_sync($course->id);
-    redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+} else {
+    if ($data = $mform->get_data()) {
+        $eid = $enrol->add_instance($course, array('customint1' => $data->link));
+        enrol_qualification_sync($course->id);
+        redirect(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
+    }
 }
 
 $PAGE->set_heading($course->fullname);
