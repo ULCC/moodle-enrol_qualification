@@ -19,27 +19,27 @@
  * Meta link enrolment plugin installation.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_enrol_meta_install() {
+function xmldb_enrol_qualification_install() {
     global $CFG, $DB;
 
     if (isset($CFG->nonmetacoursesyncroleids)) {
-        set_config('nosyncroleids', $CFG->nonmetacoursesyncroleids, 'enrol_meta');
+        set_config('nosyncroleids', $CFG->nonmetacoursesyncroleids, 'enrol_qualification');
         unset_config('nonmetacoursesyncroleids');
     }
 
-    if (!$DB->record_exists('enrol', array('enrol'=>'meta'))) {
+    if (!$DB->record_exists('enrol', array('enrol'=>'qualification'))) {
         // no need to syn roles and enrolments
         return;
     }
 
     // brute force course resync, this may take a while
-    require_once("$CFG->dirroot/enrol/meta/locallib.php");
-    enrol_meta_sync();
+    require_once("$CFG->dirroot/enrol/qualification/locallib.php");
+    enrol_qualification_sync();
 }

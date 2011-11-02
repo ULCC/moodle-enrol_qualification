@@ -19,7 +19,7 @@
  * Meta link enrolment plugin version specification.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

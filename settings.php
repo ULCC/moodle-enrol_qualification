@@ -19,7 +19,7 @@
  * Meta enrolment plugin settings and presets.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 if ($ADMIN->fulltree) {
 
     //--- general settings -----------------------------------------------------------------------------------
-    $settings->add(new admin_setting_heading('enrol_meta_settings', '', get_string('pluginname_desc', 'enrol_meta')));
+    $settings->add(new admin_setting_heading('enrol_qualification_settings', '', get_string('pluginname_desc', 'enrol_qualification')));
 
     if (!during_initial_install()) {
         $allroles = array();
@@ -37,6 +37,6 @@ if ($ADMIN->fulltree) {
                 $rolename = strip_tags(format_string($role->name)) . ' ('. $role->shortname . ')';
                 $allroles[$role->id] = $rolename;
         }
-        $settings->add(new admin_setting_configmultiselect('enrol_meta/nosyncroleids', get_string('nosyncroleids', 'enrol_meta'), get_string('nosyncroleids_desc', 'enrol_meta'), array(), $allroles));
+        $settings->add(new admin_setting_configmultiselect('enrol_qualification/nosyncroleids', get_string('nosyncroleids', 'enrol_qualification'), get_string('nosyncroleids_desc', 'enrol_qualification'), array(), $allroles));
     }
 }

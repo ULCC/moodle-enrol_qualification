@@ -16,18 +16,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'enrol_meta', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'enrol_qualification', language 'en', branch 'MOODLE_20_STABLE'
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 onwards Petr Skoda  {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['linkedcourse'] = 'Link course';
-$string['meta:config'] = 'Configure meta enrol instances';
-$string['meta:selectaslinked'] = 'Select course as meta linked';
+$string['qualification:config'] = 'Configure qualification enrol instances';
+$string['qualification:selectaslinked'] = 'Select course as qualification linked';
 $string['nosyncroleids'] = 'Roles that are not synchronised';
 $string['nosyncroleids_desc'] = 'By default all course level role assignments are synchronised from parent to child courses. Roles that are selected here will not be included in the synchronisation process. The roles available for synchronisation will be updated in the next cron execution.';
-$string['pluginname'] = 'Course meta link';
-$string['pluginname_desc'] = 'Course meta link enrolment plugin synchronises enrolments and roles in two different courses.';
+$string['pluginname'] = 'Course qualification link';
+$string['pluginname_desc'] = 'Course qualification link enrolment plugin synchronises enrolments and roles in two different courses.';

@@ -19,7 +19,7 @@
  * Adds instance form
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-class enrol_meta_addinstance_form extends moodleform {
+class enrol_qualification_addinstance_form extends moodleform {
     protected $course;
 
     function definition() {
@@ -38,7 +38,7 @@ class enrol_meta_addinstance_form extends moodleform {
         $course = $this->_customdata;
         $this->course = $course;
 
-        $existing = $DB->get_records('enrol', array('enrol'=>'meta', 'courseid'=>$course->id), '', 'customint1, id');
+        $existing = $DB->get_records('enrol', array('enrol'=>'qualification', 'courseid'=>$course->id), '', 'customint1, id');
 
         // TODO: this has to be done via ajax or else it will fail very badly on large sites!
         $courses = array('' => get_string('choosedots'));
@@ -51,16 +51,16 @@ class enrol_meta_addinstance_form extends moodleform {
             if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
                 continue;
             }
-            if (!has_capability('enrol/meta:selectaslinked', $coursecontext)) {
+            if (!has_capability('enrol/qualification:selectaslinked', $coursecontext)) {
                 continue;
             }
             $courses[$c->id] = format_string($c->fullname). ' ['.format_string($c->shortname, true, array('context' => $coursecontext)).']';
         }
         $rs->close();
 
-        $mform->addElement('header','general', get_string('pluginname', 'enrol_meta'));
+        $mform->addElement('header','general', get_string('pluginname', 'enrol_qualification'));
 
-        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_meta'), $courses);
+        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_qualification'), $courses);
         $mform->addRule('link', get_string('required'), 'required', null, 'client');
 
         $mform->addElement('hidden', 'id', null);
@@ -81,10 +81,10 @@ class enrol_meta_addinstance_form extends moodleform {
             $errors['link'] = get_string('required');
         } else {
             $coursecontext = get_context_instance(CONTEXT_COURSE, $c->id);
-            $existing = $DB->get_records('enrol', array('enrol'=>'meta', 'courseid'=>$this->course->id), '', 'customint1, id');
+            $existing = $DB->get_records('enrol', array('enrol'=>'qualification', 'courseid'=>$this->course->id), '', 'customint1, id');
             if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
                 $errors['link'] = get_string('error');
-            } else if (!has_capability('enrol/meta:selectaslinked', $coursecontext)) {
+            } else if (!has_capability('enrol/qualification:selectaslinked', $coursecontext)) {
                 $errors['link'] = get_string('error');
             } else if ($c->id == SITEID or $c->id == $this->course->id or isset($existing[$c->id])) {
                 $errors['link'] = get_string('error');

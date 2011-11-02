@@ -19,7 +19,7 @@
  * Meta course enrolment plugin.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author Petr Skoda
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_meta_plugin extends enrol_plugin {
+class enrol_qualification_plugin extends enrol_plugin {
 
     /**
      * Returns localised name of enrol instance
@@ -60,11 +60,11 @@ class enrol_meta_plugin extends enrol_plugin {
      */
     public function get_newinstance_link($courseid) {
         $context = get_context_instance(CONTEXT_COURSE, $courseid, MUST_EXIST);
-        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/meta:config', $context)) {
+        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/qualification:config', $context)) {
             return NULL;
         }
         // multiple instances supported - multiple parent courses linked
-        return new moodle_url('/enrol/meta/addinstance.php', array('id'=>$courseid));
+        return new moodle_url('/enrol/qualification/addinstance.php', array('id'=>$courseid));
     }
 
 
@@ -81,8 +81,8 @@ class enrol_meta_plugin extends enrol_plugin {
 
         if (!$inserted) {
             // sync cohort enrols
-            require_once("$CFG->dirroot/enrol/meta/locallib.php");
-            enrol_meta_sync($course->id);
+            require_once("$CFG->dirroot/enrol/qualification/locallib.php");
+            enrol_qualification_sync($course->id);
         } else {
             // cohorts are never inserted automatically
         }
@@ -96,14 +96,14 @@ class enrol_meta_plugin extends enrol_plugin {
     public function cron() {
         global $CFG;
 
-        // purge all roles if meta sync disabled, those can be recreated later here in cron
-        if (!enrol_is_enabled('meta')) {
-            role_unassign_all(array('component'=>'meta_enrol'));
+        // purge all roles if qualification sync disabled, those can be recreated later here in cron
+        if (!enrol_is_enabled('qualification')) {
+            role_unassign_all(array('component'=>'qualification_enrol'));
             return;
         }
 
-        require_once("$CFG->dirroot/enrol/meta/locallib.php");
-        enrol_meta_sync();
+        require_once("$CFG->dirroot/enrol/qualification/locallib.php");
+        enrol_qualification_sync();
     }
 }
 

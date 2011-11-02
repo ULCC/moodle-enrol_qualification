@@ -16,24 +16,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adds new instance of enrol_meta to specified course.
+ * Adds new instance of enrol_qualification to specified course.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/enrol/meta/addinstance_form.php");
-require_once("$CFG->dirroot/enrol/meta/locallib.php");
+require_once("$CFG->dirroot/enrol/qualification/addinstance_form.php");
+require_once("$CFG->dirroot/enrol/qualification/locallib.php");
 
 $id = required_param('id', PARAM_INT); // course id
 
 $course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
 $context = get_context_instance(CONTEXT_COURSE, $course->id, MUST_EXIST);
 
-$PAGE->set_url('/enrol/meta/addinstance.php', array('id'=>$course->id));
+$PAGE->set_url('/enrol/qualification/addinstance.php', array('id'=>$course->id));
 $PAGE->set_pagelayout('admin');
 
 navigation_node::override_active_url(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
@@ -41,24 +41,24 @@ navigation_node::override_active_url(new moodle_url('/enrol/instances.php', arra
 require_login($course);
 require_capability('moodle/course:enrolconfig', $context);
 
-$enrol = enrol_get_plugin('meta');
+$enrol = enrol_get_plugin('qualification');
 if (!$enrol->get_newinstance_link($course->id)) {
     redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
 }
 
-$mform = new enrol_meta_addinstance_form(NULL, $course);
+$mform = new enrol_qualification_addinstance_form(NULL, $course);
 
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
 
 } else if ($data = $mform->get_data()) {
     $eid = $enrol->add_instance($course, array('customint1'=>$data->link));
-    enrol_meta_sync($course->id);
+    enrol_qualification_sync($course->id);
     redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
 }
 
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title(get_string('pluginname', 'enrol_meta'));
+$PAGE->set_title(get_string('pluginname', 'enrol_qualification'));
 
 echo $OUTPUT->header();
 

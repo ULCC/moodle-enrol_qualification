@@ -19,7 +19,7 @@
  * Meta course enrolment plugin event handler definition.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,36 +29,36 @@ defined('MOODLE_INTERNAL') || die();
 /* List of handlers */
 $handlers = array (
     'role_assigned' => array (
-        'handlerfile'      => '/enrol/meta/locallib.php',
-        'handlerfunction'  => array('enrol_meta_handler', 'role_assigned'),
+        'handlerfile'      => '/enrol/qualification/locallib.php',
+        'handlerfunction'  => array('enrol_qualification_handler', 'role_assigned'),
         'schedule'         => 'instant',
         'internal'         => 1,
     ),
 
     'role_unassigned' => array (
-        'handlerfile'      => '/enrol/meta/locallib.php',
-        'handlerfunction'  => array('enrol_meta_handler', 'role_unassigned'),
+        'handlerfile'      => '/enrol/qualification/locallib.php',
+        'handlerfunction'  => array('enrol_qualification_handler', 'role_unassigned'),
         'schedule'         => 'instant',
         'internal'         => 1,
     ),
 
     'user_enrolled' => array (
-        'handlerfile'      => '/enrol/meta/locallib.php',
-        'handlerfunction'  => array('enrol_meta_handler', 'user_enrolled'),
+        'handlerfile'      => '/enrol/qualification/locallib.php',
+        'handlerfunction'  => array('enrol_qualification_handler', 'user_enrolled'),
         'schedule'         => 'instant',
         'internal'         => 1,
     ),
 
     'user_unenrolled' => array (
-        'handlerfile'      => '/enrol/meta/locallib.php',
-        'handlerfunction'  => array('enrol_meta_handler', 'user_unenrolled'),
+        'handlerfile'      => '/enrol/qualification/locallib.php',
+        'handlerfunction'  => array('enrol_qualification_handler', 'user_unenrolled'),
         'schedule'         => 'instant',
         'internal'         => 1,
     ),
 
     'course_deleted' => array (
-        'handlerfile'      => '/enrol/meta/locallib.php',
-        'handlerfunction'  => array('enrol_meta_handler', 'course_deleted'),
+        'handlerfile'      => '/enrol/qualification/locallib.php',
+        'handlerfunction'  => array('enrol_qualification_handler', 'course_deleted'),
         'schedule'         => 'instant',
         'internal'         => 1,
     ),

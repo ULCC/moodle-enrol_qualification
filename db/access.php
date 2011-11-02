@@ -16,10 +16,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for meta link access plugin.
+ * Capabilities for qualification link access plugin.
  *
  * @package    enrol
- * @subpackage meta
+ * @subpackage qualification
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'enrol/meta:config' => array(
+    'enrol/qualification:config' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
@@ -37,7 +37,7 @@ $capabilities = array(
     ),
 
     // select some course as source
-    'enrol/meta:selectaslinked' => array(
+    'enrol/qualification:selectaslinked' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
