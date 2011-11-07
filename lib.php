@@ -96,6 +96,20 @@ class enrol_qualification_plugin extends enrol_plugin {
     }
 
     /**
+     * Overriding so we can add an outcome sync when a new instance is added to a course.
+     *
+     * @param $course
+     * @param array|null $fields
+     * @return void
+     */
+    public function add_instance($course, array $fields = NULL) {
+        parent::add_instance($course, $fields);
+
+         // Make sure all the outcomes are updated
+        $this->sync_outcome_grade_items($course->id);
+    }
+
+    /**
      * Called for all enabled enrol plugins that returned true from is_cron_required().
      * @return void
      */
@@ -110,6 +124,92 @@ class enrol_qualification_plugin extends enrol_plugin {
 
         require_once("$CFG->dirroot/enrol/qualification/locallib.php");
         enrol_qualification_sync();
+
+        // We also want to make sure that every outcome is made into a grade item
+        $this->sync_outcome_grade_items();
     }
+
+    /**
+     * This will get all of the course outcomes that a teacher has added and make grade items for
+     * them automatically.
+     *
+     * @param null $courseid
+     * @return void
+     */
+    public function sync_outcome_grade_items($courseid = null) {
+        global $DB;
+
+        // Get all outcomes in courses that have a qualification enrolment plugin
+        $params = array();
+        $sql = "SELECT outcomes.*
+                  FROM {grade_outcomes} outcomes
+            INNER JOIN {grade_outcomes_courses} outcomes_courses
+                    ON (outcomes.id = outcomes_courses.outcomeid
+                        AND outcomes.courseid = outcomes_courses.courseid)
+            INNER JOIN {enrol} enrol
+                    ON enrol.courseid = outcomes_courses.courseid
+                 WHERE enrol.enrol = 'qualification'
+                  AND NOT EXISTS (SELECT 1
+                                    FROM {grade_items} items
+                                   WHERE items.itemtype = 'outcome'
+                                     AND items.iteminstance = outcomes.id
+                                     AND items.courseid = outcomes.courseid
+                                     ) ";
+        if ($courseid) {
+            $sql .= " AND outcomes.courseid = :courseid ";
+            $params ['courseid'] = $courseid;
+        }
+        $outcomes = $DB->get_records_sql($sql, $params);
+        // course outcomes for courses with joined qualification enrolment
+
+        // Get all existing grade items that are for outcomes. We can then update any changed names
+
+        // cross reference to add new ones (can SQL do this?)
+        // grade/edit/tree/item.php
+        // - Name
+        // - Type
+        // - Scale
+        // - Max
+        // - Min
+        // - Hidden
+        // - Locked
+        foreach ($outcomes as $outcome) {
+
+            $item = new stdClass();
+
+            // TODO include grade lib
+            // Update?
+//            $grade_item = grade_item::fetch(array('instanceid'=>$outcome->id,
+//                                                  'courseid'=>$outcome->courseid,
+//                                                  'type' => 'outcome'));
+
+            $data = new stdClass();
+            $data->scaleid = $outcome->scaleid;
+            $data->decimals = null;
+            $data->aggregationcoef = 0;
+            $data->courseid = $outcome->courseid;
+            $data->grademax = 100;
+            $data->grademin = 0;
+            $data->gradetype = GRADE_TYPE_SCALE;
+            $data->itemname = $outcome->shortname;
+            $data->itemtype = 'outcome';
+            $data->iteminstance = $data->outcomeid = $outcome->id;
+            $data->idnumber = '';
+            $data->iteminfo = $outcome->description;
+
+            // We want the item to have the same scale as the outcome
+            $grade_item = new grade_item(array('id' => 0, 'courseid' => $courseid));
+            grade_item::set_properties($grade_item, $data);
+            $grade_item->outcomeid = null;
+            $grade_item->insert();
+
+
+        }
+        // cross reference to remove old ones?
+
+
+    }
+
+
 }
 
