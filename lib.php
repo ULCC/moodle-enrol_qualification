@@ -102,7 +102,7 @@ class enrol_qualification_plugin extends enrol_plugin {
      * @param array|null $fields
      * @return void
      */
-    public function add_instance($course, array $fields = NULL) {
+    public function add_instance($course, array $fields = null) {
         parent::add_instance($course, $fields);
 
          // Make sure all the outcomes are updated
@@ -175,14 +175,6 @@ class enrol_qualification_plugin extends enrol_plugin {
         // - Locked
         foreach ($outcomes as $outcome) {
 
-            $item = new stdClass();
-
-            // TODO include grade lib
-            // Update?
-//            $grade_item = grade_item::fetch(array('instanceid'=>$outcome->id,
-//                                                  'courseid'=>$outcome->courseid,
-//                                                  'type' => 'outcome'));
-
             $data = new stdClass();
             $data->scaleid = $outcome->scaleid;
             $data->decimals = null;
@@ -203,10 +195,7 @@ class enrol_qualification_plugin extends enrol_plugin {
             $grade_item->outcomeid = null;
             $grade_item->insert();
 
-
         }
-        // cross reference to remove old ones?
-
 
     }
 
