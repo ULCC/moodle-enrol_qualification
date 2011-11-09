@@ -229,7 +229,9 @@ class enrol_qualification_handler {
 
 
 /**
- * Sync all qualification course links.
+ * Sync all qualification course links. Some courses are compulsory and some aren't. We want to auto
+ * enrol people on the compulsory ones, whilst leaving the optional ones to have manual enrolments.
+ *
  * @param int $courseid one course, empty mean all
  * @return void
  */
@@ -252,20 +254,52 @@ function enrol_qualification_sync($courseid = null) {
             $params['courseid'] = $courseid;
             $onecourse = "AND e.courseid = :courseid";
         }
-        $sql = "SELECT pue.userid, e.id AS enrolid
+        // Get all users enrolled in a course that is marked as the source for a qualification enrol
+        // instance, who are not currently enrolled via that qualification instance. Also look for
+        // enrolments where parent courses are themselves qualifications
+        // note this only deals with two levels of nesting. It will be fine as cron will pick up
+        // deeper levels on the next run, but might be delayed a bit.
+        $sql = "SELECT pue.userid,
+                       e.id AS enrolid,
+                       sube.id AS subenrolid
                   FROM {user_enrolments} pue
                   JOIN {enrol} pe
                     ON (pe.id = pue.enrolid
-                        AND pe.enrol <> 'qualification'
                         AND pe.enrol $enabled )
                   JOIN {enrol} e
                     ON (e.customint1 = pe.courseid
+                        AND e.customint2 = 1
                         AND e.enrol = 'qualification'
                         AND e.status = :statusenabled $onecourse)
              LEFT JOIN {user_enrolments} ue
                     ON (ue.enrolid = e.id
                         AND ue.userid = pue.userid)
-                 WHERE ue.id IS NULL";
+                 WHERE ue.id IS NULL
+
+                 UNION
+
+                 SELECT pue.userid,
+                       e.id AS enrolid,
+                       sube.id AS subenrolid
+                  FROM {user_enrolments} pue
+                  JOIN {enrol} pe
+                    ON (pe.id = pue.enrolid
+                        AND pe.enrol $enabled )
+                  JOIN {enrol} linke
+                    ON (linke.customint1 = pe.courseid
+                        AND linke.customint2 = 1
+                        AND linke.enrol = 'qualification'
+                        AND linke.status = :statusenabled)
+                  JOIN {enrol} e
+                    ON (e.customint1 = linke.courseid
+                        AND e.customint2 = 1
+                        AND e.enrol = 'qualification'
+                        AND e.status = :statusenabled $onecourse)
+             LEFT JOIN {user_enrolments} ue
+                    ON (ue.enrolid = e.id
+                        AND ue.userid = pue.userid)
+                 WHERE ue.id IS NULL
+                 ";
         $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
         $params['courseid'] = $courseid;
 
@@ -276,15 +310,20 @@ function enrol_qualification_sync($courseid = null) {
                 $instances[$ue->enrolid] = $DB->get_record('enrol', array('id' => $ue->enrolid));
             }
             $qualification->enrol_user($instances[$ue->enrolid], $ue->userid);
+
         }
         $rs->close();
         unset($instances);
     }
 
-    // unenrol as necessary - ignore enabled flag, we want to get rid of all
+    // unenrol as necessary - ignore enabled flag, we want to get rid of all. Do not unenrol those
+    // on optional courses (customint2 = 'compulsory')
     $sql = "SELECT ue.userid, e.id AS enrolid
               FROM {user_enrolments} ue
-              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'qualification' $onecourse)
+              JOIN {enrol} e
+                ON (e.id = ue.enrolid
+                    AND e.enrol = 'qualification' $onecourse
+                    AND e.customint2 = 1)
          LEFT JOIN (SELECT xue.userid, xe.courseid
                       FROM {enrol} xe
                       JOIN {user_enrolments} xue ON (xue.enrolid = xe.id)

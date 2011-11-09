@@ -139,7 +139,7 @@ class enrol_qualification_plugin extends enrol_plugin {
     public function sync_outcome_grade_items($courseid = null) {
         global $DB;
 
-        // Get all outcomes in courses that have a qualification enrolment plugin
+        // Get all outcomes in courses that have a qualification enrolment plugin, but no grade item
         $params = array();
         $sql = "SELECT outcomes.*
                   FROM {grade_outcomes} outcomes
@@ -203,9 +203,7 @@ class enrol_qualification_plugin extends enrol_plugin {
             $grade_item->outcomeid = null;
             $grade_item->insert();
 
-
         }
-        // cross reference to remove old ones?
 
 
     }
