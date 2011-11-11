@@ -247,12 +247,18 @@ function enrol_qualification_sync($courseid = null) {
 
     // iterate through all not enrolled yet users
     if (enrol_is_enabled('qualification')) {
-        list($enabled, $params) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled),
-                                                       SQL_PARAMS_NAMED, 'e');
-        $onecourse = "";
+        list($enabled1, $params1) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled),
+                                                       SQL_PARAMS_NAMED, 'e1');
+        list($enabled2, $params2) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled),
+                                                       SQL_PARAMS_NAMED, 'e2');
+        $params = array_merge($params1, $params2);
+
+        $onecourse1 = "";
+        $onecourse2 = "";
         if ($courseid) {
-            $params['courseid'] = $courseid;
-            $onecourse = "AND e.courseid = :courseid";
+            $params['courseid1'] = $params['courseid2'] = $courseid;
+            $onecourse1 = "AND e.courseid = :courseid1";
+            $onecourse2 = "AND e.courseid = :courseid2";
         }
         // Get all users enrolled in a course that is marked as the source for a qualification enrol
         // instance, who are not currently enrolled via that qualification instance. Also look for
@@ -260,17 +266,16 @@ function enrol_qualification_sync($courseid = null) {
         // note this only deals with two levels of nesting. It will be fine as cron will pick up
         // deeper levels on the next run, but might be delayed a bit.
         $sql = "SELECT pue.userid,
-                       e.id AS enrolid,
-                       sube.id AS subenrolid
+                       e.id AS enrolid
                   FROM {user_enrolments} pue
-                  JOIN {enrol} pe
+            INNER JOIN {enrol} pe
                     ON (pe.id = pue.enrolid
-                        AND pe.enrol $enabled )
-                  JOIN {enrol} e
+                        AND pe.enrol $enabled1 )
+            INNER JOIN {enrol} e
                     ON (e.customint1 = pe.courseid
                         AND e.customint2 = 1
                         AND e.enrol = 'qualification'
-                        AND e.status = :statusenabled $onecourse)
+                        AND e.status = :statusenabled1 $onecourse1)
              LEFT JOIN {user_enrolments} ue
                     ON (ue.enrolid = e.id
                         AND ue.userid = pue.userid)
@@ -279,29 +284,35 @@ function enrol_qualification_sync($courseid = null) {
                  UNION
 
                  SELECT pue.userid,
-                       e.id AS enrolid,
-                       sube.id AS subenrolid
+                       e.id AS enrolid
                   FROM {user_enrolments} pue
-                  JOIN {enrol} pe
+            INNER JOIN {enrol} pe
                     ON (pe.id = pue.enrolid
-                        AND pe.enrol $enabled )
-                  JOIN {enrol} linke
+                        AND pe.enrol $enabled2 )
+            INNER JOIN {enrol} linke
                     ON (linke.customint1 = pe.courseid
                         AND linke.customint2 = 1
                         AND linke.enrol = 'qualification'
-                        AND linke.status = :statusenabled)
-                  JOIN {enrol} e
+                        AND linke.status = :statusenabled2)
+            INNER JOIN {enrol} e
                     ON (e.customint1 = linke.courseid
                         AND e.customint2 = 1
                         AND e.enrol = 'qualification'
-                        AND e.status = :statusenabled $onecourse)
+                        AND e.status = :statusenabled3 $onecourse2)
              LEFT JOIN {user_enrolments} ue
                     ON (ue.enrolid = e.id
                         AND ue.userid = pue.userid)
                  WHERE ue.id IS NULL
                  ";
-        $params['statusenabled'] = ENROL_INSTANCE_ENABLED;
+        $params['statusenabled1'] =
+        $params['statusenabled2'] =
+        $params['statusenabled3'] = ENROL_INSTANCE_ENABLED;
         $params['courseid'] = $courseid;
+
+//        require_once($CFG->dirroot.'/blocks/ajax_marking/lib.php');
+//        $debugquery = block_ajax_marking_debuggable_query($sql, $params);
+
+
 
         $rs = $DB->get_recordset_sql($sql, $params);
         $instances = array(); //cache
@@ -316,19 +327,18 @@ function enrol_qualification_sync($courseid = null) {
         unset($instances);
     }
 
-    // unenrol as necessary - ignore enabled flag, we want to get rid of all. Do not unenrol those
-    // on optional courses (customint2 = 'compulsory')
+    // unenrol as necessary - ignore enabled flag, we want to get rid of all.
     $sql = "SELECT ue.userid, e.id AS enrolid
               FROM {user_enrolments} ue
               JOIN {enrol} e
                 ON (e.id = ue.enrolid
-                    AND e.enrol = 'qualification' $onecourse
-                    AND e.customint2 = 1)
+                    AND e.enrol = 'qualification' $onecourse)
          LEFT JOIN (SELECT xue.userid, xe.courseid
                       FROM {enrol} xe
                       JOIN {user_enrolments} xue ON (xue.enrolid = xe.id)
                    ) pue ON (pue.courseid = e.customint1 AND pue.userid = ue.userid)
-             WHERE pue.courseid IS NULL";
+             WHERE pue.courseid IS NULL
+                OR e.customint2 = 0";
     //TODO: this may use a bit of SQL optimisation
     $rs = $DB->get_recordset_sql($sql, array('courseid' => $courseid));
     $instances = array(); //cache
